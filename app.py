@@ -3,6 +3,13 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_cors import CORS
 
+from resources.customer import Customer
+from resources.category import Category
+from resources.item import Items
+from resources.order import Order
+from resources.review import Review
+from resources.product import Product
+
 from models import db
 
 
@@ -23,3 +30,11 @@ db.init_app(app=app)
 
 # initialize the api to add resources
 api = Api(app=app)
+
+# our resources are inserted here
+# api.add_resource(Customer, "/customers")
+# api.add_resource(Category, "/categories/")
+# api.add_resource(Product, "/products")
+# api.add_resource(Review, "/reviews")
+# api.add_resource(Order, "/orders/")
+api.add_resource(Items, "/items")

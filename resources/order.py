@@ -11,13 +11,21 @@ class Orders(Resource):
 
         return make_response(orders_list, 200)
 
-    def get_order_by_customer_id():
-        pass
+    def get_orders_by_customer_id(self, id):
+        order_by_id = Order.query.filter(Order.user_id == id).all()
+
+        if not order_by_id:
+            response = {'message':'orders for this user not found', 'code':403}
+            return make_response(response, 403)
+        
+        orders = [order.to_dict() for order in order_by_id]
+
+        return make_response(orders.to_dict(), 200)
 
     def update_order():
         pass
 
-    def delete_order():
+    def delete_order(self, id):
         order = Order.query.filter_by(id=id).first()
 
         if not order:

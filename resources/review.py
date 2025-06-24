@@ -5,7 +5,7 @@ from models import db, Review
 
 class Reviews(Resource):
     def get_product_review(self, id):
-        product_review = Review.query.filter_by(id=id).first()
+        product_review = Review.query.filter(id=id).first()
 
         if not product_review:
             response = {'message':'Review not found', 'status': 403}

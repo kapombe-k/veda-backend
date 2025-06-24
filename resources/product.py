@@ -41,7 +41,7 @@ class Products(Resource):
             db.session.commit()
 
             return make_response(new_product.to_dict(), 201)
-        except Exception as e:
+        except Exception:
             response = {
                 "status": "failed",
                 "code": 402,
@@ -73,8 +73,13 @@ class Products(Resource):
 
             return make_response(product.to_dict(), 200)
         
-        except Exception as e:
-            return make_response({"error": str(e)}, 400)
+        except Exception:
+            response = {
+                "status": "failed",
+                "code": 402,
+                "message": "product not added successfully",
+            }
+            return make_response(response, 400)
 
     def delete_product(self, id):
         product = Product.query.filter_by(id=id).first()
