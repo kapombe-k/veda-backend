@@ -4,8 +4,14 @@ from flask_restful import Resource
 from models import db, Review
 
 class Reviews(Resource):
-    def get_product_review():
-        pass
+    def get_product_review(self, id):
+        product_review = Review.query.filter_by(id=id).first()
+
+        if not product_review:
+            response = {'message':'Review not found', 'status': 403}
+            return make_response(response, 403)
+        
+        return make_response(product_review, 200)
 
     def post_review(self):
 
@@ -13,8 +19,8 @@ class Reviews(Resource):
 
         try:
             new_review = Review(
-                name = data.get('product_name'),
-                user = data.get('user_id'),
+                product_name = data.get('product_name'),
+                user_id = data.get('user_id'),
                 review = data.get('review')
             )
 
