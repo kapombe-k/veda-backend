@@ -7,29 +7,52 @@ class Reviews(Resource):
     def get_product_review():
         pass
 
-    def update_product_review():
-        product = Product.query.filter_by(id=id).first()
+    def post_review(self):
 
-        if not product:
-            return make_response({"error": "Product not found"}, 404)
+        data = request.json()
+
+        try:
+            new_review = Review(
+                name = data.get('product_name'),
+                user = data.get('user_id'),
+                review = data.get('review')
+            )
+
+            db.session.add(new_review)
+            db.session.commit()
+
+            return make_response(new_review.to_dict(), 201)
+        
+        except Exception as e:
+            response = {
+                "status": "failed",
+                "code": 402,
+                "message": "product not added successfully",
+            }
+            return make_response(response, 400)
+            
+    def update_product_review():
+        review = Review.query.filter_by(id=id).first()
+
+        if not review:
+            return make_response({"error": "review not found"}, 404)
         
         data = request.get_json()
 
         try:
-            product.name = data.get('name', product.name)
-            product.price = data.get('price', product.price)
-            product.quantity = data.get('quantity', product.quantity)
-            product.details = data.get('details', product.details)
-            product.image = data.get('image', product.image)
-            product.category = data.get('price', product.category)
-            product.category_id = data.get('category_id', product.category_id)
+            review.review = data.get('review', review.review)
 
-            db.session.commit()
+            db.session.commit(review)
 
-            return make_response(product.to_dict(), 200)
+            return make_response(review.to_dict(), 200)
         
-        except Exception as e:
-            return make_response({"error": str(e)}, 400)
+        except Exception:
+            response = {
+                "status": "failed",
+                "code": 402,
+                "message": "Review updated successfully",
+            }
+            return make_response(response, 400)
 
     def delete_product_review():
         review = Review.query.filter_by(id=id).first()

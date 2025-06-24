@@ -5,7 +5,11 @@ from models import db, Order
 
 class Orders(Resource):
     def get_all_orders():
-        pass
+        orders = Order.query.all()
+
+        orders_list = [orders.to_dict() for orders in orders]
+
+        return make_response(orders_list, 200)
 
     def get_order_by_customer_id():
         pass
