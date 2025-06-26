@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
+import re
 
 convention = {
         "ix": 'ix_%(column_0_label)s',
@@ -31,6 +32,18 @@ class Customer(db.Model, SerializerMixin):
     # RELATIONSHIPS
     orders = db.relationship('Order', back_populates= 'customer', cascade="all, delete-orphan")
     customer_reviews = db.relationship('Review', back_populates='customer')
+
+    @validates('email')
+    def validate_email(self, key, address):
+        # normalize the email
+        normalized = address.strip().lower()
+        # regex
+
+        regex_validator = r"[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)*@[A-Za-z0-9]+\.[a-z]{2,}"
+        if not re.match(regex_validator, normalized):
+            raise ValueError("Email is not valid")
+
+        return normalized
 
 
 class Product(db.Model, SerializerMixin):
