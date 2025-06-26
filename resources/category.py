@@ -4,13 +4,25 @@ from flask_restful import Resource
 from models import db, Category
 
 class Categories(Resource):
-    def get_all_categories():
-        pass
+    def get(self):
+        
+        categories = Category.query.all()
 
-    def get_single_category(self, id):
+        category_list = [category.to_dict() for category in categories]
+
+        return make_response(category_list, 200)
+
+class CategoriesById(Resource):
+
+    def get(self, id):
         category = Category.query.filter_by(id=id).first()
 
-    def update_category():
+        if not category:
+            return make_response({"error": "category not found"}, 404)
+
+        return make_response(category.to_dict(), 200)
+
+    def patch(self, id):
         category = Category.query.filter_by(id=id).first()
 
         if not category:
@@ -28,7 +40,7 @@ class Categories(Resource):
         except Exception as e:
             return make_response({"error": str(e)}, 400)
         
-    def get_products_in_category():
+    def delete(self, id):
         category = Category.query.filter_by(id=id).first()
 
         if not category:

@@ -17,6 +17,8 @@ db = SQLAlchemy(metadata=metadata)
 class Customer(db.Model, SerializerMixin):
     __tablename__ = 'customers'
 
+    serialize_rules = ('-password',)
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String, nullable=False) 
     email = db.Column(db.String, unique =True, nullable=False)
@@ -27,7 +29,7 @@ class Customer(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime(), default=datetime.now())
 
     # RELATIONSHIPS
-    orders = db.relationship('Orders', back_populates= 'customer', cascade="all, delete-orphan")
+    orders = db.relationship('Order', back_populates= 'customer', cascade="all, delete-orphan")
     customer_reviews = db.relationship('Review', back_populates='customer')
 
 
@@ -53,6 +55,8 @@ class Product(db.Model, SerializerMixin):
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
+
+    serialize_only = ('category_name',)
 
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String, nullable=False)

@@ -5,22 +5,13 @@ from models import db, Customer
 
 
 class Customers(Resource):
-    def get_all_customers(self):
+    def get(self):
         customers = Customer.query.all()
 
         customer_list = [customer.to_dict() for customer in customers]
-        return make_response(customer_list.to_dict(), 200)
-
-    def get_customer_by_id(self, id):
-        customer = Customer.query.filter_by(id=id).first()
-
-        if not customer:
-            response = {"message": "Customer not found", "status": 404}
-            return make_response(response, 404)
-
-        return make_response(customer.to_dict(), 200)
+        return make_response(customer_list, 200)
     
-    def post_new_customer(self):
+    def post(self):
 
         data = request.json()
 
@@ -43,8 +34,19 @@ class Customers(Resource):
             db.session.rollback()
 
             return make_response({'message': 'Error creating customer:', 'status': 500})
+    
+class CustomerbyId(Resource):
 
-    def update_customer(self):
+    def get(self, id):
+        customer = Customer.query.filter_by(id=id).first()
+
+        if not customer:
+            response = {"message": "Customer not found", "status": 404}
+            return make_response(response, 404)
+
+        return make_response(customer.to_dict(), 200) 
+
+    def patch(self, id):
         customer = Customer.query.filter_by(id=id).first()
 
         if not customer:
@@ -68,7 +70,7 @@ class Customers(Resource):
         except Exception as e:
             return make_response({"error": str(e)}, 400)
 
-    def delete_customer(self):
+    def delete(self, id):
         customer = Customer.query.filter_by(id=id).first()
 
         if not customer:

@@ -4,15 +4,16 @@ from flask_restful import Resource
 from models import db, Order
 
 class Orders(Resource):
-    def get_all_orders():
+    def get(self):
         orders = Order.query.all()
 
         orders_list = [orders.to_dict() for orders in orders]
 
         return make_response(orders_list, 200)
-
-    def get_orders_by_customer_id(self, id):
-        order_by_id = Order.query.filter(Order.user_id == id).all()
+        
+class OrderById(Resource):
+    def get(self, id):
+        order_by_id = Order.query.filter(Order.user_id == id).first()
 
         if not order_by_id:
             response = {'message':'orders for this user not found', 'code':403}
@@ -22,10 +23,10 @@ class Orders(Resource):
 
         return make_response(orders.to_dict(), 200)
 
-    def update_order():
-        pass
+    # def patch(self, id):
+    #     pass
 
-    def delete_order(self, id):
+    def delete(self, id):
         order = Order.query.filter_by(id=id).first()
 
         if not order:

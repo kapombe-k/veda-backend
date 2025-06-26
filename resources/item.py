@@ -4,14 +4,16 @@ from flask_restful import Resource
 from models import db, Order_item
 
 class Items(Resource):
-    def get_all_items(self):
+    def get(self):
         order_items = Order_item.query.all()
 
         order_items_list = [order_items.to_dict() for order_items in order_items]
 
         return make_response(order_items_list, 200)
+    
+class ItemsById(Resource):
 
-    def get_item_by_id(self, id):
+    def get(self, id):
         order_item = Order_item.query.filter_by(id=id).first()
 
         if not order_item:
@@ -22,14 +24,55 @@ class Items(Resource):
             return make_response(response, 404)
         
         return make_response(order_item.to_dict(), 200)
+    
+    def patch(self, id):
+        order_item = Order_item.query.filter_by(id=id).first()
 
-    def delete_item():
+        if not order_item:
+            return make_response({"error": "order_item not found"}, 404)
+
+        data = request.get_json()
+
+        try:
+            order_item.quantity = data.get("quantity", order_item.quantity)
+            
+            db.session.commit()
+
+            return make_response(order_item.to_dict(), 200)
+
+        except Exception:
+            response = {
+                "status": "failed",
+                "code": 402,
+                "message": "order_item not added successfully",
+            }
+            return make_response(response, 400)
+
+    def delete(self, id):
         item = Order_item.query.filter_by(id=id).first()
 
         if not item:
             return make_response({"error": "item not found"}, 404)
         
-        db.session.delete(item)
-        db.session.commit()
+        try:
+            db.session.delete(item)
+            db.session.commit()
 
-        return make_response({"message": "item deleted successfully"}, 200)
+            response = {
+                "status": "deleted",
+                "code": 200,
+                "message": "Item deleted",
+            }
+
+            return make_response(response, 200)
+
+        except Exception:
+            response = {
+                "status": "failed",
+                "code": 402,
+                "message": "Failed to delete item",
+            }
+
+            db.session.rollback()
+
+            return make_response(response, 400)
