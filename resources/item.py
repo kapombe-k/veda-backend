@@ -1,11 +1,11 @@
 from flask import make_response, request
 from flask_restful import Resource
 
-from models import db, Order_item
+from models import db, OrderItem
 
 class Items(Resource):
     def get(self):
-        order_items = Order_item.query.all()
+        order_items = OrderItem.query.all()
 
         order_items_list = [order_items.to_dict() for order_items in order_items]
 
@@ -14,7 +14,7 @@ class Items(Resource):
 class ItemsById(Resource):
 
     def get(self, id):
-        order_item = Order_item.query.filter_by(id=id).first()
+        order_item = OrderItem.query.filter_by(id=id).first()
 
         if not order_item:
             response ={
@@ -26,7 +26,7 @@ class ItemsById(Resource):
         return make_response(order_item.to_dict(), 200)
     
     def patch(self, id):
-        order_item = Order_item.query.filter_by(id=id).first()
+        order_item = OrderItem.query.filter_by(id=id).first()
 
         if not order_item:
             return make_response({"error": "order_item not found"}, 404)
@@ -49,7 +49,7 @@ class ItemsById(Resource):
             return make_response(response, 400)
 
     def delete(self, id):
-        item = Order_item.query.filter_by(id=id).first()
+        item = OrderItem.query.filter_by(id=id).first()
 
         if not item:
             return make_response({"error": "item not found"}, 404)

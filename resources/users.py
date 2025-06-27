@@ -15,7 +15,7 @@ class Register(Resource):
         if email:
             return {'message':'Email is already taken', 'status': 422}
     
-        password = Customer.query.filter_by(password=data.get("passord"))
+        password = Customer.query.filter_by(password=data.get("password"))
     
         hash = generate_password_hash(password).decode('utf-8')
 
