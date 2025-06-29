@@ -10,6 +10,11 @@ class Register(Resource):
     def post(self):
         data  = request.get_json()
 
+        # validations for required fields for password
+        required_fields = ['username', 'email', 'password']
+        if not all(field in data for field in required_fields):
+            return {'message': 'Missing required fields: username, email, password'}, 400
+
         email = User.query.filter_by(email=data.get("email")).first()
 
         if email:
@@ -28,14 +33,19 @@ class Register(Resource):
                 phone = data.get('phone'),
                 age = data.get('age'),
                 address = data.get('address'),
-                password = hash
+                password = hash,
+                role='customer' #added deault role from the table update
             )
 
         db.session.add(new_user)
         db.session.commit()
 
         # generate access token using jwt
-        token = create_access_token(identity=new_user.id)
+        token = create_access_token(
+            identity=new_user.id,
+            additional_claims={'role':new_user.role},
+            expires_delta=timedelta(hours=12)
+        )
 
         return {
             'message':'Account created successfully',
@@ -44,7 +54,7 @@ class Register(Resource):
         }, 201
         
 
-        
+# signin renamed login for consistnecy       
         
     
 class LogIn(Resource):
@@ -52,18 +62,23 @@ class LogIn(Resource):
 
         data = request.get_json()
 
+        # add validations for required fields
+        if not data or 'email' not in data or 'password' not in data:
+            return {'message': 'Missing email or password'}, 400
+
         user = User.query.filter_by(email=data.get('email')).first()
 
         if user is None:
             return {'message':'Invalid e-mail or password'}, 403
 
-        if check_password_hash(user.password, data.get('password')):
-            token = create_access_token(identity=user.id)
+        if not check_password_hash(user.password, data.get('password')):
+            return {'message':'Invalid e-mail or password'}, 401 #refactored to remove else at the bottom
+        
+        token = create_access_token(identity=user.id)
 
-            return {
+        return {
                 'message':'Login successful!',
                 'user': user.to_dict(),
                 'access_token': token
-            }
-        else:
-            return {'message':'Invalid email or password'}, 403
+        }
+
