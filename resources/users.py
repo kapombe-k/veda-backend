@@ -7,7 +7,6 @@ from models import db, Customer
 
 class Register(Resource):
     def post(self):
-
         data  = request.get_json()
 
         email = Customer.query.filter_by(email=data.get("email")).first()
@@ -15,11 +14,11 @@ class Register(Resource):
         if email:
             return {'message':'Email is already taken', 'status': 422}
     
-        password = Customer.query.filter_by(password=data.get("password"))
+        plaintext_password = data.get("password")
     
-        hash = generate_password_hash(password).decode('utf-8')
+        hash = generate_password_hash(plaintext_password).decode('utf-8')
 
-        del password
+        del plaintext_password
 
         # add customer
         new_customer = Customer(
@@ -42,6 +41,10 @@ class Register(Resource):
             'access_token': token,
             'user': new_customer.to_dict()
         }, 201
+        
+
+        
+        
     
 class SignIn(Resource):
     def post(self):
