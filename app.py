@@ -3,63 +3,95 @@ from flask_migrate import Migrate
 from flask_restful import Api
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from models import db
 
-
-from resources.category import Categories, CategoriesById
-from resources.item import Items, ItemsById
-from resources.order import Orders, OrderById
-from resources.review import Reviews, ReviewsById
-from resources.product import Products, ProductById
+# Import all resources
 from resources.auth import Register, LogIn
+from resources.users import Users, UserById
+from resources.product import Products, ProductById, AdminProducts, AdminProductById
+from resources.category import Categories, CategoriesById
+from resources.review import Reviews, ReviewById, ProductReviews, UserReviews
+from resources.order import Orders, OrderById, OrderItems
+from resources.item import OrderItems as OrderItemsResource, OrderItemById, OrderItemsByOrder
 
-
-
-# we initiate the flask app
+# Initialize Flask app
 app = Flask(__name__)
 
-# bcrypt extension is imported for the flask object here.
-bcrypt = Bcrypt(app)
+# Configure JWT
+app.config["JWT_SECRET_KEY"] = "your-very-secret-key"  # Change this in production!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours in seconds
 
-# let's connect the database using the connection string
+# Initialize extensions
+bcrypt = Bcrypt(app)
+jwt = JWTManager(app)
+CORS(app)
+
+# Configure database
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///veda.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# instanitate a class for migrations
-migrate = Migrate(app=app, db = db)
+# Initialize database and migrations
+db.init_app(app)
+migrate = Migrate(app, db)
 
-# we link the app to the db instances
-db.init_app(app=app)
-
-# insert cors to allow communication with the client
-CORS(app=app)
-
-# since this is a RESTful approach we define our routes for the different resources here
-
-# initialize the api to add resources
-api = Api(app=app)
+# Initialize API
+api = Api(app)
 
 @app.route('/')
 def index():
+    return "<h1>Welcome to Veda API</h1>"
 
-    message = "<h1>Welcome to Veda</h1>"
+# ======================
+# Authentication Routes
+# ======================
+api.add_resource(Register, '/register')
+api.add_resource(LogIn, '/login')
 
-    return message
+# =================
+# User Routes
+# =================
+api.add_resource(Users, '/users')
+api.add_resource(UserById, '/users/<int:id>')
 
-# our resources are inserted here
+# ==================
+# Product Routes
+# ==================
+# Public routes
+api.add_resource(Products, '/products')
+api.add_resource(ProductById, '/products/<int:id>')
 
-api.add_resource(Categories, "/categories")
-api.add_resource(CategoriesById, "/categories/<int:id>")
-api.add_resource(Products, "/products")
-api.add_resource(ProductById, "/products/<int:id>")
-api.add_resource(Reviews, "/reviews")
-api.add_resource(ReviewsById, "/reviews/<int:id>")
-api.add_resource(Orders, "/orders")
-api.add_resource(OrderById, "/orders/<int:id>")
-api.add_resource(Items, "/items")
-api.add_resource(ItemsById, "/items/<int:id>")
-api.add_resource(Register,'/register')
-api.add_resource(LogIn,'/sign-in')
+# Admin-only routes
+api.add_resource(AdminProducts, '/admin/products')
+api.add_resource(AdminProductById, '/admin/products/<int:id>')
+
+# ===================
+# Category Routes
+# ===================
+api.add_resource(Categories, '/categories')
+api.add_resource(CategoriesById, '/categories/<int:id>')
+
+# ==================
+# Review Routes
+# ==================
+api.add_resource(Reviews, '/reviews')
+api.add_resource(ReviewById, '/reviews/<int:id>')
+api.add_resource(ProductReviews, '/products/<int:product_id>/reviews')
+api.add_resource(UserReviews, '/user/reviews')
+
+# =================
+# Order Routes
+# =================
+api.add_resource(Orders, '/orders')
+api.add_resource(OrderById, '/orders/<int:id>')
+api.add_resource(OrderItems, '/orders/<int:order_id>/items')
+
+# ======================
+# Order Item Routes
+# ======================
+api.add_resource(OrderItemsResource, '/order_items')
+api.add_resource(OrderItemById, '/order_items/<int:id>')
+api.add_resource(OrderItemsByOrder, '/orders/<int:order_id>/items')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=5555, debug=True)
