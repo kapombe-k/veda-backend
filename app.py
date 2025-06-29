@@ -26,7 +26,7 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configure JWT
-app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this in production!
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # secret key attached
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=12) 
 
 # Configure database
