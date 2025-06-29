@@ -19,7 +19,7 @@ from resources.item import OrderItems as OrderItemsResource, OrderItemById, Orde
 app = Flask(__name__)
 
 # Configure JWT
-app.config["JWT_SECRET_KEY"] = "our-very-secret-key"  # Change this in production!
+app.config["JWT_SECRET_KEY"] = ("3wA3uz4gxzjt91h2PsYQTuHADpbCwZCWI2CxuI1hhgg9JoTA")  # Change this in production!
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours in seconds
 
 # Initialize extensions
