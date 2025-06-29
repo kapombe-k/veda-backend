@@ -1,9 +1,12 @@
+import os
+
 from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 from models import db
 
 # Import all resources
@@ -15,12 +18,15 @@ from resources.review import Reviews, ReviewById, ProductReviews, UserReviews
 from resources.order import Orders, OrderById
 from resources.item import OrderItems as OrderItemsResource, OrderItemById, OrderItemsByOrder
 
+# this imports the configs stored inside the .env file
+load_dotenv()
+
 # Initialize Flask app
 app = Flask(__name__)
 
 # Configure JWT
-app.config["JWT_SECRET_KEY"] = ("3wA3uz4gxzjt91h2PsYQTuHADpbCwZCWI2CxuI1hhgg9JoTA")  # Change this in production!
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours in seconds
+app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this in production!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 43200  # 12 hours in seconds
 
 # Initialize extensions
 bcrypt = Bcrypt(app)
