@@ -12,14 +12,14 @@ from resources.users import Users, UserById
 from resources.product import Products, ProductById, AdminProducts, AdminProductById
 from resources.category import Categories, CategoriesById
 from resources.review import Reviews, ReviewById, ProductReviews, UserReviews
-from resources.order import Orders, OrderById, OrderItems
+from resources.order import Orders, OrderById
 from resources.item import OrderItems as OrderItemsResource, OrderItemById, OrderItemsByOrder
 
 # Initialize Flask app
 app = Flask(__name__)
 
 # Configure JWT
-app.config["JWT_SECRET_KEY"] = "your-very-secret-key"  # Change this in production!
+app.config["JWT_SECRET_KEY"] = "our-very-secret-key"  # Change this in production!
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 86400  # 24 hours in seconds
 
 # Initialize extensions
@@ -84,14 +84,13 @@ api.add_resource(UserReviews, '/user/reviews')
 # =================
 api.add_resource(Orders, '/orders')
 api.add_resource(OrderById, '/orders/<int:id>')
-api.add_resource(OrderItems, '/orders/<int:order_id>/items')
 
 # ======================
 # Order Item Routes
 # ======================
-api.add_resource(OrderItemsResource, '/order_items')
-api.add_resource(OrderItemById, '/order_items/<int:id>')
-api.add_resource(OrderItemsByOrder, '/orders/<int:order_id>/items')
+api.add_resource(OrderItemsResource, '/order_items')  # All order items (admin)
+api.add_resource(OrderItemById, '/order_items/<int:id>')  # Specific order item
+api.add_resource(OrderItemsByOrder, '/orders/<int:order_id>/order_items')  # Items for specific order
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)

@@ -1,7 +1,7 @@
 from flask import make_response, request
 from flask_restful import Resource
 from flask_jwt_extended import jwt_required
-from decorators import admin_required  # We'll need to createreference this to apply jwt admin authentication
+from .decorators import admin_required  # We'll need to createreference this to apply jwt admin authentication
 from models import db, Product
 
 class Products(Resource):
