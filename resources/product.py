@@ -1,89 +1,100 @@
 from flask import make_response, request
 from flask_restful import Resource
-
-from models import db, Product
-
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from decorators import admin_required  # You'll need to create this
+from models import db, Product, User
 
 class Products(Resource):
     def get(self):
-        products = Product.query.all()
-
-        product_list = [product.to_dict() for product in products]
-
-        return make_response(product_list, 200)
-
-    def post(self):
-        data = request.get_json()
+        """Public endpoint to get all products"""
         try:
+            products = Product.query.all()
+            return [product.to_dict() for product in products], 200
+        except Exception as e:
+            return make_response({'message': str(e)}, 500)
+
+class ProductById(Resource):
+    def get(self, id):
+        """Public endpoint to get a specific product"""
+        try:
+            # Changed to filter by ID instead of name
+            product = Product.query.filter_by(id=id).first()
+            
+            if not product:
+                return make_response({'message': 'Product not found'}, 404)
+                
+            return make_response(product.to_dict(), 200)
+        except Exception as e:
+            return make_response({'message': str(e)}, 500)
+
+class AdminProducts(Resource):
+    @jwt_required()
+    @admin_required
+    def post(self):
+        """Admin-only endpoint to create a new product"""
+        try:
+            data = request.get_json()
+            
+            # Create new product
             new_product = Product(
                 name=data.get("name"),
-                img=data.get("image"),
+                image=data.get("image"),  # Fixed field name
                 details=data.get("details"),
                 price=data.get("price"),
-                quantity=data.get("quantity"),
-                rating=data.get("rating"),
-                category=data.get("category"),
+                stock=data.get("stock"),  # Changed from quantity to stock
                 category_id=data.get("category_id"),
             )
+            
             db.session.add(new_product)
             db.session.commit()
-
+            
             return make_response(new_product.to_dict(), 201)
+            
+        except Exception as e:
+            db.session.rollback()
+            return make_response({'message': f'Error creating product: {str(e)}'}, 400)
 
-        except Exception:
-            response = {
-                "status": "failed",
-                "code": 402,
-                "message": "product not added successfully",
-            }
-            return make_response(response, 400)
-        
-class ProductById(Resource):
-
-    def get(self, id):
-        product = Product.query.filter(Product.name==id).first()
-
-        if not product:
-            return {"message": "Product not found"}
-        else:
-            return make_response(product.to_dict(), 200)
-
+class AdminProductById(Resource):
+    @jwt_required()
+    @admin_required
     def patch(self, id):
-        product = Product.query.filter_by(id=id).first()
-
-        if not product:
-            return make_response({"error": "Product not found"}, 404)
-
-        data = request.get_json()
-
+        """Admin-only endpoint to update a product"""
         try:
-            product.name = data.get("name", product.name)
-            product.price = data.get("price", product.price)
-            product.quantity = data.get("quantity", product.quantity)
-            product.details = data.get("details", product.details)
-            product.image = data.get("image", product.image)
-            product.category = data.get("price", product.category)
-            product.category_id = data.get("category_id", product.category_id)
-
+            product = Product.query.filter_by(id=id).first()
+            
+            if not product:
+                return make_response({'message': 'Product not found'}, 404)
+                
+            data = request.get_json()
+            
+            # Update allowed fields
+            allowed_fields = ['name', 'price', 'stock', 'image', 'details', 'category_id']
+            for field in allowed_fields:
+                if field in data:
+                    setattr(product, field, data[field])
+            
             db.session.commit()
-
             return make_response(product.to_dict(), 200)
+            
+        except Exception as e:
+            db.session.rollback()
+            return make_response({'message': str(e)}, 400)
 
-        except Exception:
-            response = {
-                "status": "failed",
-                "code": 402,
-                "message": "product not added successfully",
-            }
-            return make_response(response, 400)
-
+    @jwt_required()
+    @admin_required
     def delete(self, id):
-        product = Product.query.filter_by(id=id).first()
-
-        if not product:
-            return make_response({"error": "Product not found"}, 404)
-
-        db.session.delete(product)
-        db.session.commit()
-
-        return make_response({"message": "Product deleted successfully"}, 200)
+        """Admin-only endpoint to delete a product"""
+        try:
+            product = Product.query.filter_by(id=id).first()
+            
+            if not product:
+                return make_response({'message': 'Product not found'}, 404)
+                
+            db.session.delete(product)
+            db.session.commit()
+            
+            return make_response({'message': 'Product deleted successfully'}, 200)
+            
+        except Exception as e:
+            db.session.rollback()
+            return make_response({'message': str(e)}, 500)
