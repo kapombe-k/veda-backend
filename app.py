@@ -5,13 +5,13 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from models import db
 
-from resources.customer import Customers, CustomerbyId
+
 from resources.category import Categories, CategoriesById
 from resources.item import Items, ItemsById
 from resources.order import Orders, OrderById
 from resources.review import Reviews, ReviewsById
 from resources.product import Products, ProductById
-from resources.users import Register, SignIn
+from resources.auth import Register, LogIn
 
 
 
@@ -47,8 +47,7 @@ def index():
     return message
 
 # our resources are inserted here
-api.add_resource(Customers, "/customers")
-api.add_resource(CustomerbyId, "/customers/<int:id>")
+
 api.add_resource(Categories, "/categories")
 api.add_resource(CategoriesById, "/categories/<int:id>")
 api.add_resource(Products, "/products")
@@ -60,7 +59,7 @@ api.add_resource(OrderById, "/orders/<int:id>")
 api.add_resource(Items, "/items")
 api.add_resource(ItemsById, "/items/<int:id>")
 api.add_resource(Register,'/register')
-api.add_resource(SignIn,'/sign-in')
+api.add_resource(LogIn,'/sign-in')
 
 if __name__ == "__main__":
     app.run(debug=True)

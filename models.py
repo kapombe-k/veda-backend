@@ -16,8 +16,8 @@ metadata = MetaData(naming_convention=convention)
 
 db = SQLAlchemy(metadata=metadata)
 
-class Customer(db.Model, SerializerMixin):
-    __tablename__ = 'customers'
+class User(db.Model, SerializerMixin):
+    __tablename__ = 'users'
 
     serialize_rules = ('-password',)
 
@@ -29,10 +29,11 @@ class Customer(db.Model, SerializerMixin):
     address = db.Column(db.String)
     password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.now())
+    role = db.Column(db.String(20), default='customer')  # Added role column
 
     # RELATIONSHIPS
-    orders = db.relationship('Order', back_populates='customer', cascade="all, delete-orphan")
-    reviews = db.relationship('Review', back_populates='customer')
+    orders = db.relationship('Order', back_populates='user', cascade="all, delete-orphan")
+    reviews = db.relationship('Review', back_populates='user')
 
     @validates('email')
     def validate_email(self, key, address):
@@ -51,7 +52,7 @@ class Product(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime(), default=datetime.now())
     details = db.Column(db.String, nullable=False)
     price = db.Column(db.Integer, nullable=False)
-    quantity = db.Column(db.Boolean)
+    stock = db.Column(db.Integer) # changed to integer and stock (better name)
     rating = db.Column(db.Float)
 
     # foreign key
@@ -60,7 +61,7 @@ class Product(db.Model, SerializerMixin):
     # relationships
     category = db.relationship('Category', back_populates='products')
     reviews = db.relationship('Review', back_populates='product')
-    orders = db.relationship('Order', back_populates='product')
+    order_items = db.relationship('OrderItem', back_populates='product')  # Changed relationship name
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = 'categories'
@@ -79,18 +80,17 @@ class Order(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.Boolean, nullable=False)
+    status = db.Column(db.String, default='pending') # added a more desciptive status
     order_date = db.Column(db.DateTime(), default=datetime.now(), nullable=False)
     total_amount = db.Column(db.Integer, nullable=False)
 
-    # foreign keys
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
+    # foreign keys (updated to user_id)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-    # relationships
+    # relationships (changed 2 user)
     order_items = db.relationship('OrderItem', back_populates='order')
-    customer = db.relationship('Customer', back_populates='orders')
-    product = db.relationship('Product', back_populates='orders')
+    user = db.relationship('User', back_populates='orders')
+
 
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = 'order_items'
@@ -111,18 +111,19 @@ class Review(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     review = db.Column(db.String)
+    created_at=db.Column(db.DateTime(), default=datetime.now()) # added at timestamp fr the reviews
 
-    # foreign keys
-    customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
+    # foreign keys (user update)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'))
 
-    # relationships
-    customer = db.relationship('Customer', back_populates='reviews')
+    # relationships (user update)
+    user = db.relationship('User', back_populates='reviews')
     product = db.relationship('Product', back_populates='reviews')
 
 
  # summarry of changes made
-# Fixed the Review model to properly define relationships with Customer and Product
+# Fixed the Review model to properly define relationships with user and Product
 
 # Corrected all back_populates values to be consistent across models
 
