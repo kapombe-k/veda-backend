@@ -7,6 +7,7 @@ from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
+from datetime import timedelta
 from models import db
 
 # Import all resources
@@ -26,16 +27,17 @@ app = Flask(__name__)
 
 # Configure JWT
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET')  # Change this in production!
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 43200  # 12 hours in seconds
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=12) 
+
+# Configure database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize extensions
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 CORS(app)
 
-# Configure database
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///veda.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Initialize database and migrations
 db.init_app(app)
