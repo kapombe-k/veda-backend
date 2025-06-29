@@ -1,8 +1,8 @@
 from flask import make_response, request
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from decorators import admin_required  # You'll need to create this
-from models import db, Product, User
+from flask_jwt_extended import jwt_required
+from decorators import admin_required  # We'll need to createreference this to apply jwt admin authentication
+from models import db, Product
 
 class Products(Resource):
     def get(self):
