@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from models import db, Review, User, Product
 
 class Reviews(Resource):
-    @jwt_required()
+    #@jwt_required()
     def post(self):
         """Create a new review (authenticated users only)"""
         try:
@@ -36,14 +36,14 @@ class Reviews(Resource):
             
             return make_response(new_review.to_dict(), 201)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             return make_response({
-                "message": f"Failed to create review: {str(e)}"
+                "message": "Failed to create review"
             }, 400)
 
 class ReviewById(Resource):
-    @jwt_required()
+    #@jwt_required()
     def get(self, id):
         """Get a specific review by ID"""
         try:
@@ -54,8 +54,8 @@ class ReviewById(Resource):
                 
             return make_response(review.to_dict(), 200)
             
-        except Exception as e:
-            return make_response({"message": str(e)}, 500)
+        except Exception:
+            return make_response({"message": "Review for product {id} found"}, 500)
     
     @jwt_required()
     def patch(self, id):
@@ -86,7 +86,7 @@ class ReviewById(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return make_response({"message": str(e)}, 400)
+            return make_response({"message": "Review cannot be updated"}, 400)
     
     @jwt_required()
     def delete(self, id):
@@ -112,7 +112,7 @@ class ReviewById(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return make_response({"message": str(e)}, 500)
+            return make_response({"message": "Review could not be deleted"}, 500)
 
 class ProductReviews(Resource):
     def get(self, product_id):
@@ -122,7 +122,7 @@ class ProductReviews(Resource):
             return [review.to_dict() for review in reviews], 200
             
         except Exception as e:
-            return make_response({"message": str(e)}, 500)
+            return make_response({"message": "Cannot get reviews"}, 500)
 
 class UserReviews(Resource):
     @jwt_required()

@@ -12,8 +12,8 @@ class Orders(Resource):
             orders = Order.query.filter_by(user_id=current_user_id).all()
             return [order.to_dict() for order in orders], 200
             
-        except Exception as e:
-            return make_response({'message': str(e)}, 500)
+        except Exception:
+            return make_response({'message': 'Orders not found'}, 500)
     
     @jwt_required()
     def post(self):
@@ -52,9 +52,9 @@ class Orders(Resource):
             
             return make_response(new_order.to_dict(), 201)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return make_response({'message': str(e)}, 400)
+            return make_response({'message': 'Order not added'}, 400)
 
 class OrderById(Resource):
     @jwt_required()
@@ -72,8 +72,8 @@ class OrderById(Resource):
             
             return make_response(order.to_dict(), 200)
             
-        except Exception as e:
-            return make_response({'message': str(e)}, 500)
+        except Exception:
+            return make_response({'message': 'Cannot get order, check authorization'}, 500)
     
     @jwt_required()
     def patch(self, id):
@@ -97,9 +97,9 @@ class OrderById(Resource):
             else:
                 return make_response({'message': 'No status provided'}, 400)
                 
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return make_response({'message': str(e)}, 400)
+            return make_response({'message': 'Cannot update order'}, 400)
     
     @jwt_required()
     def delete(self, id):
@@ -125,9 +125,9 @@ class OrderById(Resource):
             
             return make_response({'message': 'Order deleted successfully'}, 200)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return make_response({'message': str(e)}, 500)
+            return make_response({'message': "Cannot delete order"}, 500)
 
 class OrderItems(Resource):
     @jwt_required()
@@ -160,6 +160,6 @@ class OrderItems(Resource):
             db.session.commit()
             return make_response(new_item.to_dict(), 201)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return make_response({'message': str(e)}, 400)
+            return make_response({'message': 'Cannot add order item'}, 400)
