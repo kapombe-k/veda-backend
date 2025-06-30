@@ -45,7 +45,7 @@ Veda is a robust RESTful API for an e-commerce platform built with Python, Flask
 
 ### Prerequisites
 - Python 3.8+
-- pip package manager
+- pipenv package manager
 
 ### Setup Instructions
 
@@ -64,7 +64,7 @@ source .venv/bin/activate  # Linux/Mac
 
 3. Install dependencies:
 ```bash
-pip install -r requirements.txt
+pipenv install -r requirements.txt
 ```
 
 4. Set up environment variables:
@@ -83,7 +83,7 @@ flask db upgrade
 ```bash
 flask shell
 >>> from models import db, User
->>> from werkzeug.security import generate_password_hash
+>>> from flask_bcrypt import generate_password_hash
 >>> admin = User(username='admin', email='admin@example.com', password=generate_password_hash('adminpassword'), role='admin', phone='1234567890', address='Admin HQ')
 >>> db.session.add(admin)
 >>> db.session.commit()
