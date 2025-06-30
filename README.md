@@ -7,7 +7,7 @@ Veda is a robust RESTful API for an e-commerce platform built with Python, Flask
 - **Backend Framework**: Flask
 - **Database**: SQLite (with SQLAlchemy ORM)
 - **Authentication**: JWT (JSON Web Tokens)
-- **Password Hashing**: Werkzeug Security
+- **Password Hashing**: Flask-Bcrypt
 - **API Development**: Flask-RESTful
 - **Database Migrations**: Flask-Migrate
 - **Serialization**: SQLAlchemy-Serializer
