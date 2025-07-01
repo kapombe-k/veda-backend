@@ -10,8 +10,8 @@ class Products(Resource):
         try:
             products = Product.query.all()
             return [product.to_dict() for product in products], 200
-        except Exception as e:
-            return make_response({'message': str(e)}, 500)
+        except Exception:
+            return make_response({'message':'Cannot find products'}, 500)
 
 class ProductById(Resource):
     def get(self, id):
@@ -25,7 +25,7 @@ class ProductById(Resource):
                 
             return make_response(product.to_dict(), 200)
         except Exception as e:
-            return make_response({'message': str(e)}, 500)
+            return make_response({'message': 'Product not found'}, 500)
 
 class AdminProducts(Resource):
     @jwt_required()
@@ -52,7 +52,7 @@ class AdminProducts(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return make_response({'message': f'Error creating product: {str(e)}'}, 400)
+            return make_response({'message': 'Error creating product.'}, 400)
 
 class AdminProductById(Resource):
     @jwt_required()
@@ -76,9 +76,9 @@ class AdminProductById(Resource):
             db.session.commit()
             return make_response(product.to_dict(), 200)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
-            return make_response({'message': str(e)}, 400)
+            return make_response({'message': 'Product could not be added'}, 400)
 
     @jwt_required()
     @admin_required
@@ -97,4 +97,4 @@ class AdminProductById(Resource):
             
         except Exception as e:
             db.session.rollback()
-            return make_response({'message': str(e)}, 500)
+            return make_response({'message': 'Product could not be deleted'}, 500)
