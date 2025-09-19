@@ -133,5 +133,5 @@ class UserReviews(Resource):
             reviews = Review.query.filter_by(user_id=current_user_id).all()
             return [review.to_dict() for review in reviews], 200
             
-        except Exception as e:
-            return make_response({"message": str(e)}, 500)
+        except Exception:
+            return make_response({"message": 'Cannot get review'}, 500)

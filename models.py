@@ -26,7 +26,7 @@ class User(db.Model, SerializerMixin):
     email = db.Column(db.String, unique=True, nullable=False)
     phone = db.Column(db.Integer, unique=True, nullable=False)
     age = db.Column(db.Integer)
-    address = db.Column(db.String)
+    email_address = db.Column(db.String)
     password = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.now())
     role = db.Column(db.String(20), default='customer')  # Added role column
@@ -36,8 +36,8 @@ class User(db.Model, SerializerMixin):
     reviews = db.relationship('Review', back_populates='user')
 
     @validates('email')
-    def validate_email(self, key, address):
-        normalized = address.strip().lower()
+    def validate_email(self, key, email_address):
+        normalized = email_address.strip().lower()
         regex_validator = r"[A-Za-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)*@[A-Za-z0-9]+\.[a-z]{2,}"
         if not re.match(regex_validator, normalized):
             raise ValueError("Email is not valid")
@@ -74,6 +74,21 @@ class Category(db.Model, SerializerMixin):
 
     # relationship
     products = db.relationship('Product', back_populates='category')
+
+class Cart(db.Model, SerializerMixin):
+    __tablename__ = 'carts'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String, nullable=False, default='pending')
+
+    # foreign key
+    order_id = db.Column(db.Integer,db.ForeignKey('orders.id'))
+
+    # relationships
+    order = db.relationship('Order', back_populates='cart')
+    user = db.relationship('User', back_populates='cart')
+    
 
 class Order(db.Model, SerializerMixin):
     __tablename__ = 'orders'
@@ -137,4 +152,6 @@ class Review(db.Model, SerializerMixin):
 
 # Added missing relationships where needed
 
-# Fixed the order-product relationship that was previously missing      
+# Fixed the order-product relationship that was previously missing  
+# 
+# added cart schema     

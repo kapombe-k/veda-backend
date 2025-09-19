@@ -24,7 +24,7 @@ class ProductById(Resource):
                 return make_response({'message': 'Product not found'}, 404)
                 
             return make_response(product.to_dict(), 200)
-        except Exception as e:
+        except Exception:
             return make_response({'message': 'Product not found'}, 500)
 
 class AdminProducts(Resource):
@@ -95,6 +95,6 @@ class AdminProductById(Resource):
             
             return make_response({'message': 'Product deleted successfully'}, 200)
             
-        except Exception as e:
+        except Exception:
             db.session.rollback()
             return make_response({'message': 'Product could not be deleted'}, 500)
